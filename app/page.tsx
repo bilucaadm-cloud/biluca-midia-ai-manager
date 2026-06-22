@@ -570,7 +570,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#edf1f2] text-[#121417]">
+    <main className="min-h-screen bg-[#0b0f12] text-[#121417]">
       <section className="border-b border-[#1d2528] bg-[#0b0f12] text-[#f6fbf9]">
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-6 lg:grid-cols-[280px_1fr] lg:px-8">
           <aside className="flex flex-col justify-between rounded-lg border border-[#243034] bg-[#11181b] p-5 shadow-2xl shadow-black/20">
@@ -628,19 +628,25 @@ export default function Home() {
                   metricas e automacoes oficiais da Meta.
                 </p>
               </div>
-              <div className="grid min-w-64 gap-3 rounded-lg border border-[#243034] bg-[#11181b] p-4 shadow-xl shadow-black/20">
+              <div className="grid min-w-64 gap-4 rounded-lg border border-[#243034] bg-[#11181b] p-4 shadow-xl shadow-black/20">
                 <div className="flex items-center justify-between text-sm text-[#b8c4c0]">
-                  <span>Estilos mapeados</span>
+                  <span>Studio signal</span>
                   <span className="flex items-center gap-1 text-[#72f2a6]">
                     <CheckCircle2 size={15} />
-                    {brazilianMusicGenres.length}
+                    online
                   </span>
                 </div>
-                <div className="h-2 rounded-full bg-[#243034]">
-                  <div className="h-2 w-full rounded-full bg-[#72f2a6]" />
+                <div className="flex h-14 items-end gap-1.5 rounded-md bg-[#0b0f12] px-3 py-2">
+                  {[32, 52, 24, 44, 62, 34, 50, 28, 58, 40, 68, 36].map((height, index) => (
+                    <span
+                      className="w-full rounded-t bg-[#72f2a6]"
+                      key={`${height}-${index}`}
+                      style={{ height: `${height}%` }}
+                    />
+                  ))}
                 </div>
                 <p className="text-xs text-[#8da09a]">
-                  Base preparada para artistas de todas as regioes.
+                  {brazilianMusicGenres.length} estilos brasileiros mapeados para criacao musical.
                 </p>
               </div>
             </header>
@@ -672,9 +678,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-5 py-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-        <div className="grid gap-6">
-          <article className="rounded-lg border border-[#ccd6d8] bg-[#10171a] p-5 text-white shadow-sm">
+      <section className="mx-auto grid max-w-7xl gap-6 bg-[#0f1518] px-5 py-6 xl:grid-cols-[minmax(0,1fr)_380px] lg:px-8">
+        <div className="grid min-w-0 gap-6">
+          <article className="min-w-0 overflow-hidden rounded-lg border border-[#243034] bg-[#10171a] p-5 text-white shadow-sm">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div>
                 <p className="flex items-center gap-2 text-sm font-medium text-[#72f2a6]">
@@ -711,7 +717,7 @@ export default function Home() {
             </div>
           </article>
 
-          <article className="rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
+          <article className="min-w-0 overflow-hidden rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="flex items-center gap-2 text-sm font-medium text-[#8d4f2a]">
@@ -785,8 +791,8 @@ export default function Home() {
             </div>
           </article>
 
-          <section className="grid gap-6 xl:grid-cols-2">
-            <article className="rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
+          <section className="grid min-w-0 gap-6 xl:grid-cols-2">
+            <article className="min-w-0 overflow-hidden rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="grid size-10 place-items-center rounded-md bg-[#191714] text-white">
                   <Users size={20} />
@@ -833,7 +839,7 @@ export default function Home() {
               </form>
             </article>
 
-            <article className="rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
+            <article className="min-w-0 overflow-hidden rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="grid size-10 place-items-center rounded-md bg-[#191714] text-white">
                   <Album size={20} />
@@ -888,7 +894,7 @@ export default function Home() {
             </article>
           </section>
 
-          <article className="rounded-lg border border-[#ccd6d8] bg-white p-5 shadow-sm">
+          <article className="min-w-0 overflow-hidden rounded-lg border border-[#ccd6d8] bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="flex items-center gap-2 text-sm font-medium text-[#0f7b4f]">
@@ -908,9 +914,9 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-              <form className="grid gap-3 rounded-lg border border-[#dce5e7] bg-[#f7faf9] p-4" onSubmit={handleSocialAccountSubmit}>
-                <div className="grid gap-3 md:grid-cols-2">
+            <div className="mt-5 grid min-w-0 gap-5 2xl:grid-cols-[0.9fr_1.1fr]">
+              <form className="grid min-w-0 gap-3 rounded-lg border border-[#dce5e7] bg-[#f7faf9] p-4" onSubmit={handleSocialAccountSubmit}>
+                <div className="grid min-w-0 gap-3 lg:grid-cols-2">
                   <label className="grid gap-2 text-sm font-medium">
                     Plataforma
                     <select
@@ -927,7 +933,7 @@ export default function Home() {
                   </label>
                   <TextInput label="Nome da conexao" name="accountLabel" placeholder="Instagram oficial" required />
                 </div>
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid min-w-0 gap-3 lg:grid-cols-2">
                   <TextInput label="Usuario/perfil" name="username" placeholder="@artista" />
                   <TextInput label="Email de login" name="loginEmail" type="email" placeholder="email do responsavel" />
                 </div>
@@ -954,10 +960,10 @@ export default function Home() {
                 </button>
               </form>
 
-              <div className="grid gap-3">
+              <div className="grid min-w-0 content-start gap-3">
                 {selectedSocialAccounts.length > 0 ? (
                   selectedSocialAccounts.map((account) => (
-                    <div className="rounded-lg border border-[#dce5e7] bg-[#f7faf9] p-4" key={account.id}>
+                    <div className="min-w-0 overflow-hidden rounded-lg border border-[#dce5e7] bg-[#f7faf9] p-4" key={account.id}>
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="font-semibold">{account.accountLabel}</p>
@@ -976,15 +982,15 @@ export default function Home() {
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-lg border border-dashed border-[#b9c7ca] bg-[#f7faf9] p-5 text-sm leading-6 text-[#667174]">
+                  <div className="min-w-0 rounded-lg border border-dashed border-[#b9c7ca] bg-[#f7faf9] p-5 text-sm leading-6 text-[#667174]">
                     Nenhuma rede conectada para {selectedArtist?.artisticName}. Cadastre a
                     primeira conexao acima para preparar a automacao.
                   </div>
                 )}
 
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid min-w-0 gap-3 md:grid-cols-2">
                   {socialVaultPreview.slice(0, 2).map((item) => (
-                    <div className="rounded-lg border border-[#dce5e7] bg-white p-4" key={item.platform}>
+                    <div className="min-w-0 overflow-hidden rounded-lg border border-[#dce5e7] bg-white p-4" key={item.platform}>
                       <p className="font-semibold">{item.platform}</p>
                       <p className="mt-2 text-sm text-[#0f7b4f]">{item.status}</p>
                       <p className="mt-2 text-sm leading-6 text-[#667174]">{item.permission}</p>
@@ -995,7 +1001,7 @@ export default function Home() {
             </div>
           </article>
 
-          <article className="rounded-lg border border-[#ccd6d8] bg-white p-5 shadow-sm">
+          <article className="min-w-0 overflow-hidden rounded-lg border border-[#ccd6d8] bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="flex items-center gap-2 text-sm font-medium text-[#0f7b4f]">
@@ -1016,7 +1022,7 @@ export default function Home() {
             </div>
 
             <form
-              className="mt-5 grid gap-3 rounded-lg border border-[#c9d8d2] bg-[#edf7f1] p-4 md:grid-cols-[1fr_130px_auto]"
+              className="mt-5 grid min-w-0 gap-3 rounded-lg border border-[#c9d8d2] bg-[#edf7f1] p-4 lg:grid-cols-[minmax(0,1fr)_120px_auto]"
               onSubmit={handleGeneratePostsSubmit}
             >
               <label className="grid gap-2 text-sm font-medium">
@@ -1048,9 +1054,9 @@ export default function Home() {
               </button>
             </form>
 
-            <div className="mt-5 grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-              <form className="grid gap-3 rounded-lg border border-[#dce5e7] bg-[#f7faf9] p-4" onSubmit={handlePlannedPostSubmit}>
-                <div className="grid gap-3 md:grid-cols-2">
+            <div className="mt-5 grid min-w-0 gap-5 2xl:grid-cols-[0.95fr_1.05fr]">
+              <form className="grid min-w-0 gap-3 rounded-lg border border-[#dce5e7] bg-[#f7faf9] p-4" onSubmit={handlePlannedPostSubmit}>
+                <div className="grid min-w-0 gap-3 lg:grid-cols-2">
                   <label className="grid gap-2 text-sm font-medium">
                     Conta social
                     <select
@@ -1080,7 +1086,7 @@ export default function Home() {
                     </select>
                   </label>
                 </div>
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid min-w-0 gap-3 lg:grid-cols-2">
                   <TextInput label="Titulo interno" name="title" placeholder="Reels de pre-save" required />
                   <TextInput label="Formato" name="format" placeholder="Reels, carrossel, story..." required />
                 </div>
@@ -1102,7 +1108,7 @@ export default function Home() {
                     placeholder="Ex: capa vertical 1080x1920, clima noturno, foto do artista, tipografia grande..."
                   />
                 </label>
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid min-w-0 gap-3 lg:grid-cols-2">
                   <label className="grid gap-2 text-sm font-medium">
                     Status da arte
                     <select
@@ -1129,10 +1135,10 @@ export default function Home() {
                 </button>
               </form>
 
-              <div className="grid gap-3">
+              <div className="grid min-w-0 content-start gap-3">
                 {selectedPlannedPosts.length > 0 ? (
                   selectedPlannedPosts.map((post) => (
-                    <div className="rounded-lg border border-[#dce5e7] bg-[#f7faf9] p-4" key={post.id}>
+                    <div className="min-w-0 overflow-hidden rounded-lg border border-[#dce5e7] bg-[#f7faf9] p-4" key={post.id}>
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="font-semibold">{post.title}</p>
@@ -1154,7 +1160,7 @@ export default function Home() {
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-lg border border-dashed border-[#b9c7ca] bg-[#f7faf9] p-5 text-sm leading-6 text-[#667174]">
+                  <div className="min-w-0 rounded-lg border border-dashed border-[#b9c7ca] bg-[#f7faf9] p-5 text-sm leading-6 text-[#667174]">
                     Nenhum post planejado para {selectedArtist?.artisticName}. Crie o primeiro
                     briefing para iniciar o fluxo com o designer.
                   </div>
@@ -1163,8 +1169,8 @@ export default function Home() {
             </div>
           </article>
 
-          <section className="grid gap-6 lg:grid-cols-2">
-            <article className="rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
+          <section className="grid min-w-0 gap-6 lg:grid-cols-2">
+            <article className="min-w-0 overflow-hidden rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
               <div>
                 <p className="text-sm font-medium text-[#8d4f2a]">Artistas</p>
                 <h3 className="mt-1 text-xl font-semibold">Pipeline musical</h3>
@@ -1172,7 +1178,7 @@ export default function Home() {
               <div className="mt-4 grid gap-3">
                 {artists.map((artist) => (
                   <button
-                    className={`rounded-lg border p-4 text-left transition ${
+                    className={`min-w-0 rounded-lg border p-4 text-left transition ${
                       artist.id === selectedArtistId
                         ? "border-[#191714] bg-[#fffaf1]"
                         : "border-[#ece3d8] bg-[#fbf8f2] hover:border-[#bcae9d]"
@@ -1198,7 +1204,7 @@ export default function Home() {
               </div>
             </article>
 
-            <article className="rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
+            <article className="min-w-0 overflow-hidden rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
               <div>
                 <p className="text-sm font-medium text-[#8d4f2a]">Lancamentos</p>
                 <h3 className="mt-1 text-xl font-semibold">Projetos cadastrados</h3>
@@ -1207,7 +1213,7 @@ export default function Home() {
                 {releases.map((release) => {
                   const artist = artists.find((item) => item.id === release.artistId);
                   return (
-                    <div className="rounded-lg border border-[#ece3d8] bg-[#fbf8f2] p-4" key={release.id}>
+                    <div className="min-w-0 overflow-hidden rounded-lg border border-[#ece3d8] bg-[#fbf8f2] p-4" key={release.id}>
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="font-semibold">{release.title}</p>
@@ -1232,14 +1238,14 @@ export default function Home() {
           </section>
         </div>
 
-        <aside className="grid gap-6">
-          <article className="rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
+        <aside className="grid min-w-0 content-start gap-6">
+          <article className="min-w-0 overflow-hidden rounded-lg border border-[#243034] bg-[#10171a] p-5 text-white shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="grid size-10 place-items-center rounded-md bg-[#191714] text-white">
+              <div className="grid size-10 place-items-center rounded-md bg-[#72f2a6] text-[#0b0f12]">
                 <FileAudio size={20} />
               </div>
               <div>
-                <p className="text-sm font-medium text-[#8d4f2a]">Artista ativo</p>
+                <p className="text-sm font-medium text-[#72f2a6]">Artista ativo</p>
                 <h3 className="text-xl font-semibold">{selectedArtist?.artisticName}</h3>
               </div>
             </div>
@@ -1252,7 +1258,7 @@ export default function Home() {
             </div>
           </article>
 
-          <article className="rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
+          <article className="min-w-0 overflow-hidden rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-[#8d4f2a]">Calendario</p>
@@ -1263,7 +1269,7 @@ export default function Home() {
             <div className="mt-4 grid gap-3">
               {calendar.map((item) => (
                 <div
-                  className="grid grid-cols-[58px_1fr] gap-3 rounded-lg border border-[#ece3d8] bg-[#fbf8f2] p-3"
+                  className="grid min-w-0 grid-cols-[58px_minmax(0,1fr)] gap-3 rounded-lg border border-[#ece3d8] bg-[#fbf8f2] p-3"
                   key={`${item.day}-${item.channel}`}
                 >
                   <div className="rounded-md bg-white p-2 text-center text-sm font-semibold">
@@ -1284,7 +1290,7 @@ export default function Home() {
             </div>
           </article>
 
-          <article className="rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
+          <article className="min-w-0 overflow-hidden rounded-lg border border-[#ded6cb] bg-white p-5 shadow-sm">
             <div className="flex items-center gap-3">
               <Library size={21} />
               <div>
@@ -1295,17 +1301,17 @@ export default function Home() {
             <div className="mt-4 grid gap-2">
               {knowledge.map((item) => (
                 <div
-                  className="flex items-center justify-between rounded-md border border-[#ece3d8] px-3 py-2 text-sm"
+                  className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-[#ece3d8] px-3 py-2 text-sm"
                   key={item}
                 >
-                  <span>{item}</span>
-                  <CheckCircle2 size={16} className="text-[#3f8f42]" />
+                  <span className="min-w-0 truncate">{item}</span>
+                  <CheckCircle2 size={16} className="shrink-0 text-[#3f8f42]" />
                 </div>
               ))}
             </div>
           </article>
 
-          <article className="rounded-lg border border-[#ded6cb] bg-[#191714] p-5 text-white shadow-sm">
+          <article className="min-w-0 overflow-hidden rounded-lg border border-[#423a31] bg-[#191714] p-5 text-white shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[#f2c14e]">WhatsApp</p>
@@ -1337,7 +1343,7 @@ export default function Home() {
             ["Operacao", Activity, "Transforma cadastro em tarefas, status e proximas acoes."],
             ["Musica", Mic2, "Mantem linguagem e decisoes no universo artistico brasileiro."],
           ].map(([title, Icon, text]) => (
-            <article className="rounded-lg bg-white p-4" key={String(title)}>
+            <article className="min-w-0 rounded-lg bg-white p-4" key={String(title)}>
               <Icon className="text-[#8d4f2a]" size={21} />
               <h3 className="mt-3 font-semibold">{String(title)}</h3>
               <p className="mt-2 text-sm leading-6 text-[#6f6255]">{String(text)}</p>
@@ -1365,10 +1371,10 @@ function TextInput({
   defaultValue?: string;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-medium">
+    <label className="grid min-w-0 content-start gap-2 text-sm font-semibold text-[#1b2428]">
       {label}
       <input
-        className="rounded-md border border-[#d8cec0] bg-[#fbf8f2] px-3 py-3 outline-none ring-[#f2c14e] transition focus:ring-2"
+        className="min-w-0 rounded-md border border-[#d4dde0] bg-white px-3 text-sm text-[#101418] outline-none ring-[#72f2a6] transition placeholder:text-[#7b878a] focus:border-[#72f2a6] focus:ring-2"
         defaultValue={defaultValue}
         name={name}
         placeholder={placeholder}
@@ -1381,10 +1387,10 @@ function TextInput({
 
 function StatusSelect({ label, name }: { label: string; name: string }) {
   return (
-    <label className="grid gap-2 text-sm font-medium">
+    <label className="grid min-w-0 content-start gap-2 text-sm font-semibold text-[#1b2428]">
       {label}
       <select
-        className="rounded-md border border-[#d8cec0] bg-[#fbf8f2] px-3 py-3 outline-none ring-[#f2c14e] transition focus:ring-2"
+        className="min-w-0 rounded-md border border-[#d4dde0] bg-white px-3 text-sm text-[#101418] outline-none ring-[#72f2a6] transition focus:border-[#72f2a6] focus:ring-2"
         name={name}
         defaultValue="pending"
       >
@@ -1398,9 +1404,9 @@ function StatusSelect({ label, name }: { label: string; name: string }) {
 
 function InfoLine({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="rounded-md border border-[#ece3d8] bg-[#fbf8f2] px-3 py-2">
-      <p className="text-xs text-[#8d4f2a]">{label}</p>
-      <p className="mt-1 font-medium text-[#4a4036]">{value || "Nao informado"}</p>
+    <div className="min-w-0 rounded-md border border-[#dce5e7] bg-[#f7faf9] px-3 py-2">
+      <p className="text-xs font-semibold uppercase text-[#0f7b4f]">{label}</p>
+      <p className="mt-1 truncate font-medium text-[#243034]">{value || "Nao informado"}</p>
     </div>
   );
 }

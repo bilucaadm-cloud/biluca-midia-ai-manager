@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f3ee;
-  --foreground: #191714;
+  --background: #0b0f12;
+  --foreground: #101418;
 }
 
 @theme inline {
@@ -19,6 +19,48 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+input,
+select {
+  min-height: 48px;
+  height: 48px;
+  max-height: 48px;
+  width: 100%;
+  min-width: 0;
+}
+
+textarea {
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+}
+
+label {
+  align-content: start;
+}
+
+select {
+  cursor: pointer;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: #72f2a6;
+  color: #0b0f12;
 }

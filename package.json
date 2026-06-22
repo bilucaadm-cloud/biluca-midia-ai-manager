@@ -9,7 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .netlify --ignore-pattern .vinext --ignore-pattern .wrangler",
     "netlify:login": "netlify login",
     "netlify:init": "netlify init",
     "netlify:deploy": "netlify deploy --build",
