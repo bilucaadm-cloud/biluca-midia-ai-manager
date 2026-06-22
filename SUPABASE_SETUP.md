@@ -31,6 +31,7 @@ Depois de criar seu primeiro usuario em Authentication, rode tambem:
 
 ```text
 supabase/auth-storage-rls.sql
+supabase/design-requests.sql
 ```
 
 Para liberar seu proprio usuario como dono do painel, ajuste o email no final do
@@ -51,9 +52,10 @@ on conflict (user_id) do update set role = excluded.role, email = excluded.email
 3. Calendario de conteudo.
 4. Login seguro com Supabase Auth.
 5. Storage para artes dos posts.
-6. Upload/cadastro de documentos RAG.
-7. Geracao de embeddings.
-8. Chat do agente com memoria.
+6. Demandas de design com upload real no bucket `post-artworks`.
+7. Upload/cadastro de documentos RAG.
+8. Geracao de embeddings.
+9. Chat do agente com memoria.
 
 ## Observacao
 
