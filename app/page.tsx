@@ -11,6 +11,9 @@ import {
   Clock3,
   FileAudio,
   Library,
+  LockKeyhole,
+  LogIn,
+  LogOut,
   MessageCircle,
   MessageSquareReply,
   Mic2,
@@ -30,9 +33,11 @@ import {
   Users,
   Wand2,
 } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import type { Artist, MusicRelease, PlannedPost, SocialAccount } from "@/lib/domain";
 import { brazilianMusicGenres } from "@/lib/music-genres";
+import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 const agentModes = [
   "Planejar lancamento",
@@ -193,6 +198,15 @@ export default function Home() {
     "Modo local: configure o Supabase para salvar no banco.",
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [authRequired, setAuthRequired] = useState(() =>
+    Boolean(
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    ),
+  );
+  const [authStatus, setAuthStatus] = useState("Validando acesso seguro...");
 
   const selectedArtist = artists.find((artist) => artist.id === selectedArtistId) ?? artists[0];
   const selectedRelease = releases.find((release) => release.artistId === selectedArtist?.id);
@@ -221,12 +235,102 @@ export default function Home() {
     return `Plano inicial para ${selectedArtist.artisticName}: adaptar a estrategia para ${selectedArtist.genre}, falar com ${selectedArtist.audience || "o publico definido no cadastro"} e transformar o objetivo "${selectedArtist.goals || "crescimento artistico"}" em calendario, tarefas e mensagens de atendimento.`;
   }, [selectedArtist]);
 
+  const fetchWithAuth = useCallback(
+    async (input: RequestInfo | URL, init: RequestInit = {}) => {
+      const headers = new Headers(init.headers);
+
+      if (!headers.has("Content-Type") && init.body) {
+        headers.set("Content-Type", "application/json");
+      }
+
+      if (authRequired) {
+        const supabase = createBrowserSupabaseClient();
+        const { data } = await supabase.auth.getSession();
+        const token = data.session?.access_token;
+
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
+      }
+
+      return fetch(input, {
+        ...init,
+        headers,
+      });
+    },
+    [authRequired],
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    try {
+      const supabase = createBrowserSupabaseClient();
+      const readyTimeout = window.setTimeout(() => {
+        if (!isMounted) {
+          return;
+        }
+
+        setAuthUser(null);
+        setAuthStatus("Entre com seu email para acessar o painel.");
+        setAuthReady(true);
+      }, 1500);
+
+      supabase.auth.getSession().then(({ data }) => {
+        if (!isMounted) {
+          return;
+        }
+
+        window.clearTimeout(readyTimeout);
+        setAuthUser(data.session?.user ?? null);
+        setAuthStatus(
+          data.session?.user
+            ? "Acesso confirmado."
+            : "Entre com seu email para acessar o painel.",
+        );
+        setAuthReady(true);
+      });
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setAuthUser(session?.user ?? null);
+        setAuthStatus(session?.user ? "Acesso confirmado." : "Sessao encerrada.");
+        setAuthReady(true);
+      });
+
+      return () => {
+        isMounted = false;
+        window.clearTimeout(readyTimeout);
+        subscription.unsubscribe();
+      };
+    } catch {
+      queueMicrotask(() => {
+        setAuthRequired(false);
+        setAuthReady(true);
+        setAuthStatus("Modo local: Supabase Auth nao configurado neste ambiente.");
+      });
+
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, []);
+
   useEffect(() => {
     async function loadSupabaseData() {
+      if (authRequired && !authUser) {
+        return;
+      }
+
       try {
         const [artistsResponse, releasesResponse] = await Promise.all([
-          fetch("/api/artists"),
-          fetch("/api/releases"),
+          fetchWithAuth("/api/artists"),
+          fetchWithAuth("/api/releases"),
         ]);
         const artistsPayload = await artistsResponse.json();
         const releasesPayload = await releasesResponse.json();
@@ -245,19 +349,25 @@ export default function Home() {
       }
     }
 
-    loadSupabaseData();
-  }, []);
+    if (authReady) {
+      loadSupabaseData();
+    }
+  }, [authReady, authRequired, authUser, fetchWithAuth]);
 
   useEffect(() => {
     async function loadArtistWorkflow() {
+      if (authRequired && !authUser) {
+        return;
+      }
+
       if (!selectedArtistId || !isUuid(selectedArtistId)) {
         return;
       }
 
       try {
         const [socialResponse, postsResponse] = await Promise.all([
-          fetch(`/api/social-accounts?artistId=${selectedArtistId}`),
-          fetch(`/api/planned-posts?artistId=${selectedArtistId}`),
+          fetchWithAuth(`/api/social-accounts?artistId=${selectedArtistId}`),
+          fetchWithAuth(`/api/planned-posts?artistId=${selectedArtistId}`),
         ]);
         const socialPayload = await socialResponse.json();
         const postsPayload = await postsResponse.json();
@@ -282,8 +392,10 @@ export default function Home() {
       }
     }
 
-    loadArtistWorkflow();
-  }, [selectedArtistId]);
+    if (authReady) {
+      loadArtistWorkflow();
+    }
+  }, [authReady, authRequired, authUser, fetchWithAuth, selectedArtistId]);
 
   async function handleArtistSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -313,11 +425,8 @@ export default function Home() {
     setIsSaving(true);
 
     try {
-      const response = await fetch("/api/artists", {
+      const response = await fetchWithAuth("/api/artists", {
         body: JSON.stringify(artist),
-        headers: {
-          "Content-Type": "application/json",
-        },
         method: "POST",
       });
 
@@ -374,11 +483,8 @@ export default function Home() {
     setIsSaving(true);
 
     try {
-      const response = await fetch("/api/releases", {
+      const response = await fetchWithAuth("/api/releases", {
         body: JSON.stringify(release),
-        headers: {
-          "Content-Type": "application/json",
-        },
         method: "POST",
       });
 
@@ -431,11 +537,8 @@ export default function Home() {
     setIsSaving(true);
 
     try {
-      const response = await fetch("/api/social-accounts", {
+      const response = await fetchWithAuth("/api/social-accounts", {
         body: JSON.stringify(socialAccount),
-        headers: {
-          "Content-Type": "application/json",
-        },
         method: "POST",
       });
 
@@ -497,11 +600,8 @@ export default function Home() {
     setIsSaving(true);
 
     try {
-      const response = await fetch("/api/planned-posts", {
+      const response = await fetchWithAuth("/api/planned-posts", {
         body: JSON.stringify(plannedPost),
-        headers: {
-          "Content-Type": "application/json",
-        },
         method: "POST",
       });
 
@@ -533,15 +633,12 @@ export default function Home() {
     setIsSaving(true);
 
     try {
-      const response = await fetch("/api/generate-posts", {
+      const response = await fetchWithAuth("/api/generate-posts", {
         body: JSON.stringify({
           artistId: selectedArtist.id,
           campaignGoal: String(form.get("campaignGoal") ?? "").trim(),
           quantity: Number(form.get("quantity") ?? 3),
         }),
-        headers: {
-          "Content-Type": "application/json",
-        },
         method: "POST",
       });
 
@@ -567,6 +664,85 @@ export default function Home() {
       setIsSaving(false);
       formElement.reset();
     }
+  }
+
+  async function handleAuthSubmit(
+    event: FormEvent<HTMLFormElement>,
+    mode: "signin" | "signup",
+  ) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get("email") ?? "").trim();
+    const password = String(form.get("password") ?? "");
+
+    if (!email || !password) {
+      setAuthStatus("Informe email e senha para continuar.");
+      return;
+    }
+
+    try {
+      const supabase = createBrowserSupabaseClient();
+      setAuthStatus(mode === "signup" ? "Criando acesso..." : "Entrando...");
+
+      const { data, error } =
+        mode === "signup"
+          ? await supabase.auth.signUp({ email, password })
+          : await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        setAuthStatus(error.message);
+        return;
+      }
+
+      if (mode === "signup" && !data.session) {
+        setAuthStatus("Acesso criado. Verifique seu email se o Supabase pedir confirmacao.");
+        return;
+      }
+
+      setAuthUser(data.user ?? null);
+      setAuthStatus("Acesso confirmado.");
+    } catch {
+      setAuthStatus("Nao foi possivel conectar ao Supabase Auth.");
+    }
+  }
+
+  async function handleSignOut() {
+    try {
+      const supabase = createBrowserSupabaseClient();
+      await supabase.auth.signOut();
+    } finally {
+      setAuthUser(null);
+      setAuthStatus("Sessao encerrada.");
+    }
+  }
+
+  if (!authReady) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-[#0b0f12] px-5 text-white">
+        <div className="w-full max-w-md rounded-lg border border-[#243034] bg-[#11181b] p-6 shadow-2xl shadow-black/30">
+          <div className="flex items-center gap-3">
+            <div className="grid size-11 place-items-center rounded-full bg-[#72f2a6] text-[#0b0f12]">
+              <Music2 size={24} strokeWidth={2.5} />
+            </div>
+            <div>
+              <p className="text-sm text-[#a8b7b2]">Biluca Midia</p>
+              <h1 className="text-xl font-semibold">AI Manager</h1>
+            </div>
+          </div>
+          <p className="mt-6 text-sm text-[#b8c4c0]">{authStatus}</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (authRequired && !authUser) {
+    return (
+      <AuthGate
+        authStatus={authStatus}
+        onSignIn={(event) => handleAuthSubmit(event, "signin")}
+        onSignUp={(event) => handleAuthSubmit(event, "signup")}
+      />
+    );
   }
 
   return (
@@ -604,12 +780,33 @@ export default function Home() {
                 ))}
               </nav>
             </div>
-            <div className="mt-8 rounded-md border border-[#243034] bg-[#0e1416] p-4">
-              <p className="text-xs uppercase text-[#72f2a6]">Cobertura musical</p>
-              <p className="mt-2 text-sm leading-6 text-[#d7e0dc]">
-                Preparado para forro, funk, gospel, sertanejo, rap, samba, piseiro,
-                brega, MPB, rock, pagode e outras cenas do Brasil.
-              </p>
+            <div className="mt-8 grid gap-3">
+              <div className="rounded-md border border-[#243034] bg-[#0e1416] p-4">
+                <p className="text-xs uppercase text-[#72f2a6]">Cobertura musical</p>
+                <p className="mt-2 text-sm leading-6 text-[#d7e0dc]">
+                  Preparado para forro, funk, gospel, sertanejo, rap, samba, piseiro,
+                  brega, MPB, rock, pagode e outras cenas do Brasil.
+                </p>
+              </div>
+              <div className="rounded-md border border-[#243034] bg-[#0e1416] p-4">
+                <p className="flex items-center gap-2 text-xs uppercase text-[#72f2a6]">
+                  <LockKeyhole size={14} />
+                  Acesso seguro
+                </p>
+                <p className="mt-2 truncate text-sm text-[#d7e0dc]">
+                  {authUser?.email ?? "Modo local"}
+                </p>
+                {authRequired ? (
+                  <button
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-[#243034] px-3 py-2 text-sm text-[#e7efed] transition hover:bg-[#1d282c]"
+                    onClick={handleSignOut}
+                    type="button"
+                  >
+                    <LogOut size={16} />
+                    Sair
+                  </button>
+                ) : null}
+              </div>
             </div>
           </aside>
 
@@ -1349,6 +1546,120 @@ export default function Home() {
               <p className="mt-2 text-sm leading-6 text-[#6f6255]">{String(text)}</p>
             </article>
           ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function AuthGate({
+  authStatus,
+  onSignIn,
+  onSignUp,
+}: {
+  authStatus: string;
+  onSignIn: (event: FormEvent<HTMLFormElement>) => void;
+  onSignUp: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+
+  return (
+    <main className="grid min-h-screen place-items-center bg-[#0b0f12] px-5 py-10 text-white">
+      <section className="grid w-full max-w-5xl overflow-hidden rounded-lg border border-[#243034] bg-[#11181b] shadow-2xl shadow-black/30 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="flex flex-col justify-between border-b border-[#243034] p-6 lg:border-b-0 lg:border-r">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="grid size-12 place-items-center rounded-full bg-[#72f2a6] text-[#0b0f12]">
+                <Music2 size={26} strokeWidth={2.5} />
+              </div>
+              <div>
+                <p className="text-sm text-[#a8b7b2]">Biluca Midia</p>
+                <h1 className="text-2xl font-semibold">AI Manager</h1>
+              </div>
+            </div>
+            <p className="mt-8 text-sm font-semibold uppercase text-[#f2c14e]">
+              Central musical segura
+            </p>
+            <h2 className="mt-3 text-4xl font-semibold leading-tight">
+              Entre para operar artistas, posts e campanhas.
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-[#b8c4c0]">
+              O painel guarda dados de artistas, redes sociais e briefings. Por isso,
+              daqui para frente o acesso precisa passar pelo Supabase Auth.
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-3 rounded-md border border-[#243034] bg-[#0e1416] p-4 text-sm text-[#d7e0dc]">
+            <div className="flex items-center gap-2">
+              <LockKeyhole size={16} className="text-[#72f2a6]" />
+              Sessao protegida por token
+            </div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={16} className="text-[#72f2a6]" />
+              APIs bloqueadas sem login
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="flex gap-2 rounded-md border border-[#243034] bg-[#0e1416] p-1">
+            {[
+              ["signin", "Entrar"],
+              ["signup", "Criar acesso"],
+            ].map(([value, label]) => (
+              <button
+                className={`flex-1 rounded px-3 py-2 text-sm font-semibold transition ${
+                  mode === value
+                    ? "bg-[#72f2a6] text-[#0b0f12]"
+                    : "text-[#b8c4c0] hover:bg-[#1d282c]"
+                }`}
+                key={value}
+                onClick={() => setMode(value as "signin" | "signup")}
+                type="button"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <form
+            className="mt-6 grid gap-4"
+            onSubmit={mode === "signin" ? onSignIn : onSignUp}
+          >
+            <label className="grid gap-2 text-sm font-semibold text-[#e7efed]">
+              Email
+              <input
+                className="rounded-md border border-[#243034] bg-[#0b0f12] px-3 text-white outline-none ring-[#72f2a6] transition placeholder:text-[#6f7d80] focus:border-[#72f2a6] focus:ring-2"
+                name="email"
+                placeholder="voce@biluca.com"
+                required
+                type="email"
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-[#e7efed]">
+              Senha
+              <input
+                className="rounded-md border border-[#243034] bg-[#0b0f12] px-3 text-white outline-none ring-[#72f2a6] transition placeholder:text-[#6f7d80] focus:border-[#72f2a6] focus:ring-2"
+                minLength={6}
+                name="password"
+                placeholder="minimo 6 caracteres"
+                required
+                type="password"
+              />
+            </label>
+
+            <button
+              className="mt-2 flex items-center justify-center gap-2 rounded-md bg-[#72f2a6] px-4 py-3 text-sm font-semibold text-[#0b0f12]"
+              type="submit"
+            >
+              <LogIn size={17} />
+              {mode === "signin" ? "Entrar no painel" : "Criar acesso"}
+            </button>
+          </form>
+
+          <div className="mt-5 rounded-md border border-[#243034] bg-[#0e1416] p-4 text-sm leading-6 text-[#b8c4c0]">
+            {authStatus}
+          </div>
         </div>
       </section>
     </main>

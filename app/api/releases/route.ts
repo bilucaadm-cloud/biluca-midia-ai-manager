@@ -2,15 +2,21 @@ import { NextResponse } from "next/server";
 import { mapReleaseRow, mapReleaseToInsert } from "@/lib/supabase/mappers";
 import {
   createServerSupabaseClient,
+  getAuthenticatedUser,
+  isSupabasePublicConfigured,
   isSupabaseServerConfigured,
 } from "@/lib/supabase/server";
 
-export async function GET() {
+export async function GET(request: Request) {
   if (!isSupabaseServerConfigured()) {
     return NextResponse.json(
       { configured: false, releases: [] },
       { status: 200 },
     );
+  }
+
+  if (isSupabasePublicConfigured() && !(await getAuthenticatedUser(request))) {
+    return NextResponse.json({ error: "Login obrigatorio." }, { status: 401 });
   }
 
   const supabase = createServerSupabaseClient();
@@ -35,6 +41,10 @@ export async function POST(request: Request) {
       { error: "Supabase is not configured." },
       { status: 503 },
     );
+  }
+
+  if (isSupabasePublicConfigured() && !(await getAuthenticatedUser(request))) {
+    return NextResponse.json({ error: "Login obrigatorio." }, { status: 401 });
   }
 
   const payload = await request.json();

@@ -4,6 +4,8 @@ import { generatePostsWithOpenAI } from "@/lib/openai-post-generator";
 import { generatePlannedPosts } from "@/lib/post-generator";
 import {
   createServerSupabaseClient,
+  getAuthenticatedUser,
+  isSupabasePublicConfigured,
   isSupabaseServerConfigured,
 } from "@/lib/supabase/server";
 import { mapPlannedPostRow, mapPlannedPostToInsert } from "@/lib/supabase/mappers";
@@ -26,6 +28,10 @@ export async function POST(request: Request) {
       { error: "Supabase is not configured." },
       { status: 503 },
     );
+  }
+
+  if (isSupabasePublicConfigured() && !(await getAuthenticatedUser(request))) {
+    return NextResponse.json({ error: "Login obrigatorio." }, { status: 401 });
   }
 
   const payload = await request.json();

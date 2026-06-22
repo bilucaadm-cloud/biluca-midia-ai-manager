@@ -27,14 +27,33 @@ No painel do Supabase, abra SQL Editor e rode o arquivo:
 supabase/schema.sql
 ```
 
+Depois de criar seu primeiro usuario em Authentication, rode tambem:
+
+```text
+supabase/auth-storage-rls.sql
+```
+
+Para liberar seu proprio usuario como dono do painel, ajuste o email no final do
+arquivo ou rode:
+
+```sql
+insert into public.app_members (user_id, email, role)
+select id, email, 'owner'
+from auth.users
+where email = 'seu-email@exemplo.com'
+on conflict (user_id) do update set role = excluded.role, email = excluded.email;
+```
+
 ## 4. Primeira ordem de desenvolvimento
 
 1. Cadastro de artistas.
 2. Cadastro de lancamentos.
 3. Calendario de conteudo.
-4. Upload/cadastro de documentos RAG.
-5. Geracao de embeddings.
-6. Chat do agente com memoria.
+4. Login seguro com Supabase Auth.
+5. Storage para artes dos posts.
+6. Upload/cadastro de documentos RAG.
+7. Geracao de embeddings.
+8. Chat do agente com memoria.
 
 ## Observacao
 
